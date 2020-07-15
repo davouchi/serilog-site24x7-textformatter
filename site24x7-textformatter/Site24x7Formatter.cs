@@ -14,6 +14,7 @@
         void FormatContent(LogEvent logEvent, TextWriter output);
     }
 
+
     public class Site24x7TextFormatter : ISite24x7TextFormatter
     {
         public void FormatContent(LogEvent logEvent, TextWriter output)
@@ -65,7 +66,7 @@
             }
         }
 
-        public static void WriteProperties(
+        private static void WriteProperties(
          IReadOnlyDictionary<string, LogEventPropertyValue> properties,
          TextWriter output)
         {
@@ -90,7 +91,7 @@
             }
         }
 
-        public static void WriteRenderings(
+        private static void WriteRenderings(
            IEnumerable<IGrouping<string, PropertyToken>> tokensWithFormat,
            IReadOnlyDictionary<string, LogEventPropertyValue> properties,
            TextWriter output)
