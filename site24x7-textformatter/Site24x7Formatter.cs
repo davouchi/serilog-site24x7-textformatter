@@ -46,17 +46,17 @@
             output.Write(logEvent.Level);
 
             output.Write("\",\"MessageTemplate\":");
-            JsonValueFormatter.WriteQuotedJsonString(logEvent.MessageTemplate.Text, output);
+            JsonValueFormatter.WriteQuotedJsonString(logEvent.MessageTemplate.Text.Replace("{", "").Replace("}", "").Replace("\"", ""), output);
 
             output.Write(",\"RenderedMessage\":");
 
             var message = logEvent.MessageTemplate.Render(logEvent.Properties);
-            JsonValueFormatter.WriteQuotedJsonString(message, output);
+            JsonValueFormatter.WriteQuotedJsonString(message.Replace("{", "").Replace("}", "").Replace("\"", ""), output);
 
             if (logEvent.Exception != null)
             {
                 output.Write(",\"Exception\":");
-                JsonValueFormatter.WriteQuotedJsonString(logEvent.Exception.ToString(), output);
+                JsonValueFormatter.WriteQuotedJsonString(logEvent.Exception.ToString().Replace("{", "").Replace("}", "").Replace("\"", ""), output);
             }
 
             if (logEvent.Properties.Count != 0)
@@ -90,7 +90,7 @@
 
                 JsonValueFormatter.WriteQuotedJsonString(property.Key, output);
                 output.Write(':');
-                new JsonValueFormatter().Format(property.Value, output);
+                JsonValueFormatter.WriteQuotedJsonString(property.Value.ToString().Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Replace("\"", ""), output);
             }
         }
 
@@ -117,12 +117,12 @@
                     fdelim = ",";
 
                     output.Write("{\"Format\":");
-                    JsonValueFormatter.WriteQuotedJsonString(format.Format, output);
+                    JsonValueFormatter.WriteQuotedJsonString(format.Format.Replace("{", "").Replace("}", "").Replace("\"", ""), output);
 
                     output.Write(",\"Rendering\":");
                     var sw = new StringWriter();
                     format.Render(properties, sw);
-                    JsonValueFormatter.WriteQuotedJsonString(sw.ToString(), output);
+                    JsonValueFormatter.WriteQuotedJsonString(sw.ToString().Replace("{", "").Replace("}", "").Replace("\"", ""), output);
                     output.Write('}');
                 }
 
