@@ -5,10 +5,10 @@
     using Serilog.Formatting.Json;
     using Serilog.Parsing;
     using System;
-    using System.Text.Encodings.Web;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text.Encodings.Web;
 
     public class Site24x7TextFormatter : ITextFormatter
     {
@@ -47,19 +47,19 @@
             output.Write(logEvent.Level);
 
             output.Write("\",\"MessageTemplate\":");
-            string msgTemp = HtmlEncoder.Default.Encode(logEvent.MessageTemplate.Text);
+            string msgTemp = EncodeString(logEvent.MessageTemplate.Text);
             JsonValueFormatter.WriteQuotedJsonString(msgTemp, output);
 
             output.Write(",\"RenderedMessage\":");
 
             var message = logEvent.MessageTemplate.Render(logEvent.Properties);
-            var msg = HtmlEncoder.Default.Encode(message.ToString());
+            var msg = EncodeString(message.ToString());
             JsonValueFormatter.WriteQuotedJsonString(msg, output);
 
             if (logEvent.Exception != null)
             {
                 output.Write(",\"Exception\":");
-                var expMsg = HtmlEncoder.Default.Encode(logEvent.Exception.ToString());
+                var expMsg = EncodeString(logEvent.Exception.ToString());
                 JsonValueFormatter.WriteQuotedJsonString(expMsg, output);
             }
 
@@ -93,7 +93,7 @@
                 precedingDelimiter = ",";
 
                 JsonValueFormatter.WriteQuotedJsonString(property.Key, output);
-                output.Write(':');  
+                output.Write(':');
                 JsonValueFormatter.WriteQuotedJsonString(property.Value.ToString(), output);
             }
         }
@@ -121,13 +121,13 @@
                     fdelim = ",";
 
                     output.Write("{\"Format\":");
-                    var formMsg = HtmlEncoder.Default.Encode(format.Format);
+                    var formMsg = EncodeString(format.Format);
                     JsonValueFormatter.WriteQuotedJsonString(formMsg, output);
 
                     output.Write(",\"Rendering\":");
                     var sw = new StringWriter();
                     format.Render(properties, sw);
-                    var renderMsg = HtmlEncoder.Default.Encode(sw.ToString());
+                    var renderMsg = EncodeString(sw.ToString());
                     JsonValueFormatter.WriteQuotedJsonString(renderMsg, output);
                     output.Write('}');
                 }
@@ -136,6 +136,21 @@
             }
 
             output.Write('}');
+        }
+
+        private static string EncodeString(string input)
+        {
+            string output = "";
+            if (input.Contains("{") || input.Contains("<"))
+            {
+                output = HtmlEncoder.Default.Encode(input);
+            }
+            else
+            {
+                output = input;
+            }
+
+            return output;
         }
     }
 }
