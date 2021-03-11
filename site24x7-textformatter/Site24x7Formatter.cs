@@ -5,6 +5,7 @@
     using Serilog.Formatting.Json;
     using Serilog.Parsing;
     using System;
+    using System.Text.Encodings.Web;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -46,17 +47,20 @@
             output.Write(logEvent.Level);
 
             output.Write("\",\"MessageTemplate\":");
-            JsonValueFormatter.WriteQuotedJsonString(logEvent.MessageTemplate.Text.Replace("{", "").Replace("}", "").Replace("\"", ""), output);
+            string msgTemp = HtmlEncoder.Default.Encode(logEvent.MessageTemplate.Text);
+            JsonValueFormatter.WriteQuotedJsonString(msgTemp, output);
 
             output.Write(",\"RenderedMessage\":");
 
             var message = logEvent.MessageTemplate.Render(logEvent.Properties);
-            JsonValueFormatter.WriteQuotedJsonString(message.Replace("{", "").Replace("}", "").Replace("\"", ""), output);
+            var msg = HtmlEncoder.Default.Encode(message.ToString());
+            JsonValueFormatter.WriteQuotedJsonString(msg, output);
 
             if (logEvent.Exception != null)
             {
                 output.Write(",\"Exception\":");
-                JsonValueFormatter.WriteQuotedJsonString(logEvent.Exception.ToString().Replace("{", "").Replace("}", "").Replace("\"", ""), output);
+                var expMsg = HtmlEncoder.Default.Encode(logEvent.Exception.ToString());
+                JsonValueFormatter.WriteQuotedJsonString(expMsg, output);
             }
 
             if (logEvent.Properties.Count != 0)
@@ -89,8 +93,8 @@
                 precedingDelimiter = ",";
 
                 JsonValueFormatter.WriteQuotedJsonString(property.Key, output);
-                output.Write(':');
-                JsonValueFormatter.WriteQuotedJsonString(property.Value.ToString().Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Replace("\"", ""), output);
+                output.Write(':');  
+                JsonValueFormatter.WriteQuotedJsonString(property.Value.ToString(), output);
             }
         }
 
@@ -117,12 +121,14 @@
                     fdelim = ",";
 
                     output.Write("{\"Format\":");
-                    JsonValueFormatter.WriteQuotedJsonString(format.Format.Replace("{", "").Replace("}", "").Replace("\"", ""), output);
+                    var formMsg = HtmlEncoder.Default.Encode(format.Format);
+                    JsonValueFormatter.WriteQuotedJsonString(formMsg, output);
 
                     output.Write(",\"Rendering\":");
                     var sw = new StringWriter();
                     format.Render(properties, sw);
-                    JsonValueFormatter.WriteQuotedJsonString(sw.ToString().Replace("{", "").Replace("}", "").Replace("\"", ""), output);
+                    var renderMsg = HtmlEncoder.Default.Encode(sw.ToString());
+                    JsonValueFormatter.WriteQuotedJsonString(renderMsg, output);
                     output.Write('}');
                 }
 
