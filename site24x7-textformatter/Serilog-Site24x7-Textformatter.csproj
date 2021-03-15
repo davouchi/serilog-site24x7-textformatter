@@ -11,9 +11,9 @@
     <Authors>David Ajatuewo</Authors>
     <Company>David Ajatuewo</Company>
     <PackageId>Serilog.Site24x7.Textformatter</PackageId>
-    <AssemblyVersion>1.1.7.0</AssemblyVersion>
-    <FileVersion>1.1.7.0</FileVersion>
-    <Version>1.1.7</Version>
+    <AssemblyVersion>1.3.1.0</AssemblyVersion>
+    <FileVersion>1.3.1.0</FileVersion>
+    <Version>1.3.1</Version>
   </PropertyGroup>
 
   <PropertyGroup>

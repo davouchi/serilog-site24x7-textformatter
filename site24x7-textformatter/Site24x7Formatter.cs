@@ -46,14 +46,9 @@
             output.Write("\",\"Level\":\"");
             output.Write(logEvent.Level);
 
-            output.Write("\",\"MessageTemplate\":");
-            string msgTemp = EncodeString(logEvent.MessageTemplate.Text);
-            JsonValueFormatter.WriteQuotedJsonString(msgTemp, output);
-
-            output.Write(",\"RenderedMessage\":");
-
+            output.Write("\",\"RenderedMessage\":");
             var message = logEvent.MessageTemplate.Render(logEvent.Properties);
-            var msg = EncodeString(message.ToString());
+            var msg = EncodeString(message);
             JsonValueFormatter.WriteQuotedJsonString(msg, output);
 
             if (logEvent.Exception != null)
@@ -94,7 +89,7 @@
 
                 JsonValueFormatter.WriteQuotedJsonString(property.Key, output);
                 output.Write(':');
-                JsonValueFormatter.WriteQuotedJsonString(property.Value.ToString(), output);
+                JsonValueFormatter.WriteQuotedJsonString(property.Value.ToString().Replace("\"", ""), output);
             }
         }
 
@@ -121,14 +116,12 @@
                     fdelim = ",";
 
                     output.Write("{\"Format\":");
-                    var formMsg = EncodeString(format.Format);
-                    JsonValueFormatter.WriteQuotedJsonString(formMsg, output);
+                    JsonValueFormatter.WriteQuotedJsonString(format.Format, output);
 
                     output.Write(",\"Rendering\":");
                     var sw = new StringWriter();
                     format.Render(properties, sw);
-                    var renderMsg = EncodeString(sw.ToString());
-                    JsonValueFormatter.WriteQuotedJsonString(renderMsg, output);
+                    JsonValueFormatter.WriteQuotedJsonString(sw.ToString(), output);
                     output.Write('}');
                 }
 
@@ -138,12 +131,21 @@
             output.Write('}');
         }
 
-        private static string EncodeString(string input)
+        public static string EncodeString(string input)
         {
             string output = "";
+
             if (input.Contains("{") || input.Contains("<"))
             {
-                output = HtmlEncoder.Default.Encode(input);
+                string result = HtmlEncoder.Default.Encode(input);
+                if (!result.Contains("\""))
+                {
+                    output = "Encoded Data - " + result.ToString();
+                }
+                else
+                {
+                    output = result;
+                }
             }
             else
             {
@@ -151,6 +153,6 @@
             }
 
             return output;
-        }
+        }      
     }
 }
